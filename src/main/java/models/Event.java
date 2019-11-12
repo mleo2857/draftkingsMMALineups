@@ -8,16 +8,27 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import javax.sql.DataSource;
+
+import DAO.FighterDAO;
+import DAO.LineupDAO;
+import JDBC.JDBCFighterDAO;
+import JDBC.JDBCLineupDAO;
+import models.Fighter;
+
 public class Event {
 	
 	private ArrayList<Fighter> fighterList = new ArrayList<Fighter>();
 	private ArrayList<ArrayList<Fighter>> possibleLineups = new ArrayList<ArrayList<Fighter>>();
 	private Map<ArrayList<Fighter>, Double> lineupsWithAverages = new HashMap<ArrayList<Fighter>, Double>();
 	private Map<ArrayList<Fighter>, Integer> lineupsWithTotalSalary = new HashMap<ArrayList<Fighter>, Integer>();
-	
+	private FighterDAO fighterDAO;
+	private LineupDAO lineupDAO;
 	
 
-	public Event(File file) throws FileNotFoundException {
+	public Event(File file, DataSource datasource) throws FileNotFoundException {
+		fighterDAO = new JDBCFighterDAO(datasource);
+		lineupDAO = new JDBCLineupDAO(datasource);
 		importFighterInformation(file);
 		assignOpponents();
 		this.possibleLineups = this.determinePossibleLineups();
@@ -43,8 +54,10 @@ public class Event {
 			double avgPoints = Double.parseDouble(fighterInfo[8]);
 			Fighter aFighter = new Fighter(firstName,lastName,salary,avgPoints);
 			this.fighterList.add(aFighter);
+			fighterDAO.addFighterToDatabase(aFighter);
 		}
 	}
+
 
 	public ArrayList<Fighter> getFighterList() {
 		return this.fighterList;
@@ -100,6 +113,8 @@ public class Event {
 								if (salary <= 50000 && !areOpponents) {
 									possibleLineups.add(lineup);
 									this.lineupsWithTotalSalary.put(lineup, salary);
+									Lineup aLineup = new Lineup(lineup);
+									lineupDAO.addLineupToDatabase(aLineup);
 								}
 							}
 						}

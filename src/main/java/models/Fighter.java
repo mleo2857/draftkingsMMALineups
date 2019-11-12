@@ -19,8 +19,17 @@ public class Fighter {
 	public String getName() {
 		return this.firstName + " " + this.lastName;
 	}
-
 	
+	
+	
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
 	public int getFighter_id() {
 		return fighter_id;
 	}
