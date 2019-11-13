@@ -1,6 +1,7 @@
 package models;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,47 +19,19 @@ import models.Fighter;
 
 public class Event {
 	
-	private ArrayList<Fighter> fighterList = new ArrayList<Fighter>();
-	private ArrayList<ArrayList<Fighter>> possibleLineups = new ArrayList<ArrayList<Fighter>>();
-	private Map<ArrayList<Fighter>, Double> lineupsWithAverages = new HashMap<ArrayList<Fighter>, Double>();
-	private Map<ArrayList<Fighter>, Integer> lineupsWithTotalSalary = new HashMap<ArrayList<Fighter>, Integer>();
-	private FighterDAO fighterDAO;
-	private LineupDAO lineupDAO;
+	private int event_id;
+	private String event_name;
+	private LocalDate event_date;
+	private ArrayList<Fighter> fighterList;
+	private ArrayList<ArrayList<Fighter>> possibleLineups;
 	
 
-	public Event(File file, DataSource datasource) throws FileNotFoundException {
-		fighterDAO = new JDBCFighterDAO(datasource);
-		lineupDAO = new JDBCLineupDAO(datasource);
-		importFighterInformation(file);
+	public Event(ArrayList<Fighter> eventFighters, String event_name, LocalDate event_date) {
+		this.fighterList = eventFighters;
 		assignOpponents();
 		this.possibleLineups = this.determinePossibleLineups();
-		this.createAveragesMap();
 	}
 	
-	public void importFighterInformation(File file) throws FileNotFoundException {
-		Scanner fighterScanner = new Scanner(file);
-		fighterScanner.nextLine();
-		
-		while(fighterScanner.hasNextLine()) {
-			String fighter = fighterScanner.nextLine();
-			String[] fighterInfo = fighter.split(",");
-			String[] fighterName = fighterInfo[2].split(" ");
-			String firstName = fighterName[0];
-			String lastName = fighterName[fighterName.length-1];
-			String fighter1 = fighterInfo[6].split(" ")[0].split("@")[0];
-			String fighter2 = fighterInfo[6].split(" ")[0].split("@")[1];
-			if (!lastName.equals(fighter1) && !lastName.equals(fighter2)) {
-				continue;
-			}
-			int salary = Integer.parseInt(fighterInfo[5]);
-			double avgPoints = Double.parseDouble(fighterInfo[8]);
-			Fighter aFighter = new Fighter(firstName,lastName,salary,avgPoints);
-			this.fighterList.add(aFighter);
-			fighterDAO.addFighterToDatabase(aFighter);
-		}
-	}
-
-
 	public ArrayList<Fighter> getFighterList() {
 		return this.fighterList;
 	}
@@ -112,9 +85,7 @@ public class Event {
 								}
 								if (salary <= 50000 && !areOpponents) {
 									possibleLineups.add(lineup);
-									this.lineupsWithTotalSalary.put(lineup, salary);
 									Lineup aLineup = new Lineup(lineup);
-									lineupDAO.addLineupToDatabase(aLineup);
 								}
 							}
 						}
@@ -128,52 +99,6 @@ public class Event {
 		
 	}
 	
-	public void createAveragesMap() {
-		for (int i = 0; i < this.possibleLineups.size(); i++) {
-			double thisAverage = 0;
-			for (Fighter aFighter : this.possibleLineups.get(i)) {
-				thisAverage += aFighter.getAvgPoints();
-			}
-			lineupsWithAverages.put(this.possibleLineups.get(i), thisAverage);
-		}
-	}
-	
-//	public void getTopAverageScoreLineups(int numberOfLineups) {
-//		TreeMap<Double, ArrayList> temp = this.lineupsWithAverages;
-//		for (int i = 0; i < numberOfLineups; i++) {
-//			String format = "%1$-30s%2$-20s%3$-20s\n";
-//			System.out.format(format, "Fighter Name", "Salary","Opponent");
-//			System.out.println();
-//			double average = temp.lastKey();
-//			ArrayList<Fighter> aFighterList = temp.remove(temp.lastKey());
-//			for (Fighter aFighter : aFighterList) {
-//				System.out.format(format, aFighter.getName(), aFighter.getSalary(),aFighter.getOpponent());
-//			}
-//			System.out.println();
-//			System.out.print("Total Average: ");
-//			System.out.format("%.2f", average);
-//			System.out.println();
-//		}
-//		System.out.println();
-//	}
-	
-//	public void getTopSalaryLineups(int numberOfLineups) {
-//		TreeMap<Integer, ArrayList<Fighter>> temp = this.lineupsWithTotalSalary;
-//		for (int i = 0; i < numberOfLineups; i++) {
-//			String format = "%1$-30s%2$-20s%3$-20s\n";
-//			System.out.format(format, "Fighter Name", "Salary","Opponent");
-//			System.out.println();
-//			int salary = temp.lastKey();
-//			ArrayList<Fighter> aFighterList = temp.remove(temp.lastKey());
-//			for (Fighter aFighter : aFighterList) {
-//				System.out.format(format, aFighter.getName(), aFighter.getSalary(),aFighter.getOpponent());
-//			}
-//			System.out.println();
-//			System.out.print("Total Salary: " + salary);
-//			System.out.println();
-//		}
-//		System.out.println();
-//	}
 
 	
 	public ArrayList<ArrayList<Fighter>> getPossibleLineups() {
@@ -206,14 +131,4 @@ public class Event {
 		
 	}
 	
-	
-	
-
-	public Map<ArrayList<Fighter>, Double> getLineupsWithAverages() {
-		return lineupsWithAverages;
-	}
-
-	public Map<ArrayList<Fighter>, Integer> getLineupsWithTotalSalary() {
-		return lineupsWithTotalSalary;
-	}
 }

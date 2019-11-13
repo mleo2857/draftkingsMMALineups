@@ -8,43 +8,79 @@ public class Fighter {
 	private int salary;
 	private double avgPoints;
 	private Fighter opponent;
-	
-	public Fighter(String firstName, String lastName, int salary, double avgPoints) {
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.salary = salary;
-		this.avgPoints = avgPoints;
-	}
+
 
 	public String getName() {
 		return this.firstName + " " + this.lastName;
 	}
 	
-	
-	
-	public String getFirstName() {
-		return firstName;
-	}
 
-	public String getLastName() {
-		return lastName;
-	}
 
 	public int getFighter_id() {
 		return fighter_id;
 	}
 
+
+
+	public void setFighter_id(int fighter_id) {
+		this.fighter_id = fighter_id;
+	}
+
+
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+
+
+	public String getLastName() {
+		return lastName;
+	}
+
+
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+
+
 	public int getSalary() {
 		return salary;
 	}
+
+
+
+	public void setSalary(int salary) {
+		this.salary = salary;
+	}
+
+
 
 	public double getAvgPoints() {
 		return avgPoints;
 	}
 
-	public String getOpponent() {
-		return opponent.getName();
+
+
+	public void setAvgPoints(double avgPoints) {
+		this.avgPoints = avgPoints;
 	}
+
+
+
+	public Fighter getOpponent() {
+		return opponent;
+	}
+
+
 
 	public void setOpponent(Fighter opponent) {
 		this.opponent = opponent;

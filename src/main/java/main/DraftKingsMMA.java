@@ -1,19 +1,24 @@
 package main;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
-
+import DAO.EventDAO;
+import DAO.FighterDAO;
+import DAO.LineupDAO;
+import JDBC.JDBCEventDAO;
+import JDBC.JDBCFighterDAO;
+import JDBC.JDBCLineupDAO;
 import models.Fighter;
 import models.Event;
 
 public class DraftKingsMMA {
-	
-	
+
 	
 
 	public static void main(String[] args) throws FileNotFoundException {
@@ -23,25 +28,45 @@ public class DraftKingsMMA {
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
 		
-		File dkSalaryInfo = new File(System.getProperty("user.dir"), "DKSalaries.csv");
-		Event dkMMA = new Event(dkSalaryInfo, dataSource);
+		FighterDAO fighterDAO = new JDBCFighterDAO(dataSource);
+		LineupDAO lineupDAO = new JDBCLineupDAO(dataSource);
+		EventDAO eventDAO = new JDBCEventDAO(dataSource);
 		
-	
-		dkMMA.displayFighters();
-		System.out.println();
-		System.out.println("Number of possible lineups: " + dkMMA.getPossibleLineups().size());
+		File dkSalaryInfo = new File(System.getProperty("user.dir"), "DKSalaries.csv");
 		
 		Scanner userInput = new Scanner(System.in);
 		
-//		System.out.println("How many lineups do you need?");
-//		String numString = userInput.nextLine();
-//		int numberOfLineups = Integer.parseInt(numString);
+		System.out.println("Please enter the title of this event");
+		String eventName = userInput.nextLine();
 		
-//		System.out.println("Optimize for Highest (A)verage or Highest (S)alary?");
-//		String averageOrSalary = userInput.nextLine().toLowerCase();
+		if (!eventDAO.eventAlreadyInDatabase(eventName)) {
+			Scanner fighterScanner = new Scanner(dkSalaryInfo);
+			fighterScanner.nextLine();
+			LocalDate eventDate = null;
+			while(fighterScanner.hasNextLine()) {
+				String fighter = fighterScanner.nextLine();
+				String[] fighterInfo = fighter.split(",");
+				String[] fighterName = fighterInfo[2].split(" ");
+				String firstName = fighterName[0];
+				String lastName = fighterName[fighterName.length-1];
+				String fighter1 = fighterInfo[6].split(" ")[0].split("@")[0];
+				String fighter2 = fighterInfo[6].split(" ")[0].split("@")[1];
+				if (!lastName.equals(fighter1) && !lastName.equals(fighter2)) {
+					continue;
+				}
+				int salary = Integer.parseInt(fighterInfo[5]);
+				double avgPoints = Double.parseDouble(fighterInfo[8]);
+				eventDate = LocalDate.parse(fighterInfo[6].split(" ")[1]);
+				fighterDAO.saveFighter(firstName, lastName, salary, avgPoints);
+			}
+			eventDAO.saveEvent(eventName, eventDate);
+			
+		} else {
 		
-		dkMMA.displayFighters();
 		
+		}
+		
+
 //		ArrayList<String> selectedFighters = new ArrayList<String>();
 //		
 //		System.out.println(dkMMA.getPossibleLineups().size());
@@ -68,33 +93,6 @@ public class DraftKingsMMA {
 //			}
 //			
 //		}
-//		
-//		
-//		System.out.println(selectedFighters);
-//		ArrayList<ArrayList<Fighter>> filteredLineups = dkMMA.filter(selectedFighters);
-//		
-//		
-//		
-//		
-//		if (filteredLineups.size() == 0) {
-//			System.out.println("No lineups match your search");
-//		} else {
-//
-//			System.out.println("Number of possible lineups: " + dkMMA.getPossibleLineups().size());
-//			System.out.println("Number of filtered lineups: " + filteredLineups.size());
-//		}
-		
-		
-		
-		
-		
-		
-	
-		
-		
-		
-		
-
 	
 	}
 

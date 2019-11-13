@@ -18,10 +18,9 @@ public class JDBCFighterDAO implements FighterDAO {
 	}
 
 	
-	public void addFighterToDatabase(Fighter fighter) {
+	public void saveFighter(String firstName, String lastName, int salary, double avgPoints) {
 		String sqlCommand = "INSERT INTO fighter(first_name, last_name, salary, average_points)VALUES(?,?,?,?);";
-		jdbcTemplate.update(sqlCommand,fighter.getFirstName(),fighter.getLastName(),fighter.getSalary(),fighter.getAvgPoints());
-		
+		jdbcTemplate.update(sqlCommand,firstName,lastName,salary,avgPoints);
 	}
 	
 

@@ -6,37 +6,42 @@ drop table if exists fighter           cascade;
 
 CREATE TABLE lineup (
     lineup_id serial NOT NULL,
+    /*
     fighter_1_name varchar(64) NOT NULL,
     fighter_2_name varchar(64) NOT NULL,
     fighter_3_name varchar(64) NOT NULL,
     fighter_4_name varchar(64) NOT NULL,
     fighter_5_name varchar(64) NOT NULL,
     fighter_6_name varchar(64) NOT NULL,
-    
-    /*event_id integer NOT NULL,
+    */
+    event_id integer NOT NULL,
     fighter_1_id integer NOT NULL,
     fighter_2_id integer NOT NULL,
     fighter_3_id integer NOT NULL,
     fighter_4_id integer NOT NULL,
     fighter_5_id integer NOT NULL,
     fighter_6_id integer NOT NULL,
-    average_points_for double precision,*/
+    average_points_for double precision,
     total_points_for double precision,
-    /*average_salary double precision,*/
+    average_salary double precision,
     total_salary int,
     /*total_score double precision,*/
     CONSTRAINT pk_lineup_id PRIMARY KEY (lineup_id)
 );
-/*
+
 CREATE TABLE event (
     event_id serial NOT NULL,
+    event_name varchar(64) NOT NULL,
     event_date date NOT NULL,
+    /*
     money_cutoff_points double precision,
     top_score double precision,
+    
     event_location varchar(64) NOT NULL,
+    */
     CONSTRAINT pk_event_id PRIMARY KEY (event_id)
 );
-
+/*
 CREATE TABLE fight (
     fight_id serial NOT NULL,
     event_id int NOT NULL,
@@ -62,7 +67,7 @@ CREATE TABLE fighter (
 );
 
 
-/*ALTER TABLE lineup
+ALTER TABLE lineup
 ADD FOREIGN KEY(event_id)
 REFERENCES event(event_id);
 
@@ -89,7 +94,7 @@ REFERENCES fighter(fighter_id);
 ALTER TABLE lineup
 ADD FOREIGN KEY(fighter_6_id)
 REFERENCES fighter(fighter_id);
-
+/*
 ALTER TABLE fight
 ADD FOREIGN KEY(event_id)
 REFERENCES event(event_id);
