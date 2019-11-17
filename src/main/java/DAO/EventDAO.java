@@ -6,6 +6,8 @@ public interface EventDAO {
 	
 	public boolean eventAlreadyInDatabase(String eventName);
 	
-	public void saveEvent(String eventName, LocalDate eventDate);
+	public void saveEvent(String eventName, String eventDate, String eventLocation);
+	
+	public int getEventId(String eventName);
 
 }

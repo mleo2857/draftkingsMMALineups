@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import DAO.EventDAO;
 
+
 public class JDBCEventDAO implements EventDAO{
 	
 private JdbcTemplate jdbcTemplate;
@@ -18,7 +19,7 @@ private JdbcTemplate jdbcTemplate;
 	}
 
 	public boolean eventAlreadyInDatabase(String eventName) {
-		String sqlCommand = "SELECT * FROM event WHERE event_name = '" + eventName + "'";
+		String sqlCommand = "SELECT * FROM event WHERE event_name = '" + eventName + "';";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlCommand);
 		
 		if(result.next()) {
@@ -28,9 +29,18 @@ private JdbcTemplate jdbcTemplate;
 		return false;
 	}
 	
-	public void saveEvent(String eventName, LocalDate eventDate) {
-		String sqlCommand = "INSERT INTO event(event_name, event_date)VALUES(?,?);";
-		jdbcTemplate.update(sqlCommand,eventName,eventDate);
+	public void saveEvent(String eventName, String eventDate, String eventLocation) {
+		String sqlCommand = "INSERT INTO event(event_name, event_date, event_location)"
+							+ " VALUES('" + eventName + "',DATE'" + eventDate + "','" + eventLocation + "');";
+		jdbcTemplate.update(sqlCommand);
+	}
+	
+	public int getEventId(String eventName) {
+		String sqlCommand = "SELECT * FROM event WHERE event_name = '" + eventName + "'";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlCommand);
+		result.next();
+		
+		return result.getInt("event_id");
 	}
 	
 

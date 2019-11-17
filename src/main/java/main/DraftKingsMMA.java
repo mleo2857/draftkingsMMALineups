@@ -9,17 +9,19 @@ import java.util.Scanner;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import DAO.EventDAO;
+import DAO.Event_FighterDAO;
 import DAO.FighterDAO;
 import DAO.LineupDAO;
 import JDBC.JDBCEventDAO;
+import JDBC.JDBCEventFighterDAO;
 import JDBC.JDBCFighterDAO;
 import JDBC.JDBCLineupDAO;
 import models.Fighter;
+import models.Lineup;
 import models.Event;
+import models.Event_Fighter;
 
 public class DraftKingsMMA {
-
-	
 
 	public static void main(String[] args) throws FileNotFoundException {
 		
@@ -31,6 +33,7 @@ public class DraftKingsMMA {
 		FighterDAO fighterDAO = new JDBCFighterDAO(dataSource);
 		LineupDAO lineupDAO = new JDBCLineupDAO(dataSource);
 		EventDAO eventDAO = new JDBCEventDAO(dataSource);
+		Event_FighterDAO eventFighterDAO = new JDBCEventFighterDAO(dataSource);
 		
 		File dkSalaryInfo = new File(System.getProperty("user.dir"), "DKSalaries.csv");
 		
@@ -38,11 +41,14 @@ public class DraftKingsMMA {
 		
 		System.out.println("Please enter the title of this event");
 		String eventName = userInput.nextLine();
+		System.out.println("What is the event location?");
+		String eventLocation = userInput.nextLine();
 		
 		if (!eventDAO.eventAlreadyInDatabase(eventName)) {
 			Scanner fighterScanner = new Scanner(dkSalaryInfo);
 			fighterScanner.nextLine();
-			LocalDate eventDate = null;
+			String eventDate = null;
+			int eventId = 0;
 			while(fighterScanner.hasNextLine()) {
 				String fighter = fighterScanner.nextLine();
 				String[] fighterInfo = fighter.split(",");
@@ -55,23 +61,49 @@ public class DraftKingsMMA {
 					continue;
 				}
 				int salary = Integer.parseInt(fighterInfo[5]);
-				double avgPoints = Double.parseDouble(fighterInfo[8]);
-				eventDate = LocalDate.parse(fighterInfo[6].split(" ")[1]);
-				fighterDAO.saveFighter(firstName, lastName, salary, avgPoints);
+				double averagePoints = Double.parseDouble(fighterInfo[8]);
+				eventDate = fighterInfo[6].split(" ")[1];
+				if (!fighterDAO.fighterAlreadyInDatabase(firstName, lastName)) {
+					fighterDAO.saveFighter(firstName, lastName);
+				}
+				if (!eventDAO.eventAlreadyInDatabase(eventName)) {
+					eventDAO.saveEvent(eventName, eventDate, eventLocation);
+				}
+				eventId = eventDAO.getEventId(eventName);
+				int fighterId = fighterDAO.getFighterId(firstName, lastName);
+				eventFighterDAO.addEventFighter(eventId, fighterId, salary, averagePoints, 0);
 			}
-			eventDAO.saveEvent(eventName, eventDate);
 			
-		} else {
-		
-		
+			File dkFighterPointInfo = new File(System.getProperty("user.dir"), "fighter_points.csv");	
+			Scanner fighterPointsScanner = new Scanner(dkFighterPointInfo);
+			
+			while(fighterPointsScanner.hasNextLine()) {
+				String fighterPoints = fighterPointsScanner.nextLine();
+				String[] fighterInfo = fighterPoints.split(",");
+				String[] fighterName = fighterInfo[0].split(" ");
+				String firstName = fighterName[0];
+				String lastName = fighterName[fighterName.length-1];
+				double points = Double.parseDouble(fighterInfo[3]);
+				int fighterId = fighterDAO.getFighterId(firstName, lastName);
+				eventFighterDAO.addEventFighterPointsScored(eventId, fighterId, points);
+			}
+			
+			Event_Fighter[] eventFighterArray = eventFighterDAO.getFightersForEvent(eventId);
+			
+
+			ArrayList<ArrayList<Integer>> possibleLineups = getPossibleLineups(eventFighterArray, eventId);
+			System.out.println(possibleLineups.size());
+			
+			for (ArrayList<Integer> fighterIds : possibleLineups) {
+				lineupDAO.addLineupToDatabase(eventId, fighterIds);
+			}
+			
 		}
+
+	}
 		
 
-//		ArrayList<String> selectedFighters = new ArrayList<String>();
-//		
-//		System.out.println(dkMMA.getPossibleLineups().size());
-//		System.out.println(dkMMA.getLineupsWithTotalSalary().size());
-//		
+
 //		while (true) {
 //			System.out.println("What fighters do you want in your lineup?");
 //			String input = userInput.nextLine();
@@ -94,6 +126,57 @@ public class DraftKingsMMA {
 //			
 //		}
 	
-	}
 
+	
+	public static ArrayList<ArrayList<Integer>> getPossibleLineups(Event_Fighter[] eventFighterArray, int eventId) {
+		ArrayList<ArrayList<Integer>> combinations = new ArrayList<ArrayList<Integer>>();
+		
+		int N = eventFighterArray.length;
+		
+		int pointers[] = new int[6];
+		
+		int r = 0; // index for combination array
+		int i = 0; // index for elements array
+		
+		while(r >= 0){
+			
+			// forward step if i < (N + (r-K))
+			if(i <= (N + (r - 6))){
+				pointers[r] = i;
+					
+				// if combination array is full print and increment i;
+				if(r == 5){
+					ArrayList<Integer> fighterIds = new ArrayList<Integer>();
+					int salary = 0;
+					for (Integer index : pointers) {
+						fighterIds.add(eventFighterArray[index].getFighter_id());
+						salary += eventFighterArray[index].getSalary();
+					}
+			    	
+			    	if (salary <= 50000) {
+			    		combinations.add(fighterIds);
+			    	}
+					
+					i++;				
+				}
+				else{
+					// if combination is not full yet, select next element
+					i = pointers[r]+1;
+					r++;										
+				}				
+			}
+			
+			// backward step
+			else{
+				r--;
+				if(r >= 0)
+					i = pointers[r]+1;
+				
+			}			
+		}
+    	
+		return combinations;
+	}
 }
+
+

@@ -3,87 +3,28 @@ package models;
 public class Fighter {
 	
 	private int fighter_id;
-	private String firstName;
-	private String lastName;
-	private int salary;
-	private double avgPoints;
-	private Fighter opponent;
-
-
-	public String getName() {
-		return this.firstName + " " + this.lastName;
-	}
+	private String first_name;
+	private String last_name;
 	
-
-
 	public int getFighter_id() {
 		return fighter_id;
 	}
-
-
-
 	public void setFighter_id(int fighter_id) {
 		this.fighter_id = fighter_id;
 	}
-
-
-
-	public String getFirstName() {
-		return firstName;
+	public String getFirst_name() {
+		return first_name;
 	}
-
-
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public void setFirst_name(String first_name) {
+		this.first_name = first_name;
 	}
-
-
-
-	public String getLastName() {
-		return lastName;
+	public String getLast_name() {
+		return last_name;
 	}
-
-
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
+	public void setLast_name(String last_name) {
+		this.last_name = last_name;
 	}
-
-
-
-	public int getSalary() {
-		return salary;
-	}
-
-
-
-	public void setSalary(int salary) {
-		this.salary = salary;
-	}
-
-
-
-	public double getAvgPoints() {
-		return avgPoints;
-	}
-
-
-
-	public void setAvgPoints(double avgPoints) {
-		this.avgPoints = avgPoints;
-	}
-
-
-
-	public Fighter getOpponent() {
-		return opponent;
-	}
-
-
-
-	public void setOpponent(Fighter opponent) {
-		this.opponent = opponent;
-	}
+	
+	
 
 }
